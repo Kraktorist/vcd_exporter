@@ -2,8 +2,6 @@
 
 VMware VCD Exporter for Prometheus. 
 
-## Badges
-
 ## Grafana Dashboard
 
 ![Grafana](Dashboard.png "vCD Dashboard")
