@@ -308,14 +308,14 @@ class VcdCollector:
             ),
             'vcd_vdc_vapp_vm_vcpu_usage': GaugeMetricFamily(
                 'vcd_vdc_vapp_vm_vcpu_usage',
-                'Average CPU usage of vm in given vApp of vdc',
+                'Average CPU usage in percents of vm in given vApp of vdc',
                 labels=['vm_id', 'vm_name', 'vm_deployed', 'vm_status', 'vm_os_type', 'vapp_id',
                         'vapp_name', 'vapp_deployed', 'vdc_id', 'vdc_name', 'org_id', 'org_name',
                         'vdc_is_enabled']
             ),
             'vcd_vdc_vapp_vm_memory_usage': GaugeMetricFamily(
                 'vcd_vdc_vapp_vm_memory_usage',
-                'Average memory usage of vm in given vApp of vdc',
+                'Average memory usage in percents of vm in given vApp of vdc',
                 labels=['vm_id', 'vm_name', 'vm_deployed', 'vm_status', 'vm_os_type', 'vapp_id',
                         'vapp_name', 'vapp_deployed', 'vdc_id', 'vdc_name', 'org_id', 'org_name',
                         'vdc_is_enabled']
