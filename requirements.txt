@@ -5,5 +5,5 @@ yamlconfig
 service-identity
 requests
 xmltodict
-pyvcd==0.1.4
+pyvcd>=0.1.4
 pyvcloud>=20.0.1

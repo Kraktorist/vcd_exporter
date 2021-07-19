@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 # -*- python -*-
 # -*- coding: utf-8 -*-
 
@@ -22,6 +22,7 @@ from prometheus_client.exposition import generate_latest
 from pyvcloud.vcd.client import *
 from pyvcloud.vcd.org import *
 from pyvcloud.vcd.vapp import *
+from pyvcloud.vcd.vm import *
 
 # Ignore SSL warnings
 requests.packages.urllib3.disable_warnings()
@@ -305,6 +306,34 @@ class VcdCollector:
                         'vapp_name', 'vapp_deployed', 'vdc_id', 'vdc_name', 'org_id', 'org_name',
                         'vdc_is_enabled']
             ),
+            'vcd_vdc_vapp_vm_vcpu_usage': GaugeMetricFamily(
+                'vcd_vdc_vapp_vm_vcpu_usage',
+                'Average CPU usage of vm in given vApp of vdc',
+                labels=['vm_id', 'vm_name', 'vm_deployed', 'vm_status', 'vm_os_type', 'vapp_id',
+                        'vapp_name', 'vapp_deployed', 'vdc_id', 'vdc_name', 'org_id', 'org_name',
+                        'vdc_is_enabled']
+            ),
+            'vcd_vdc_vapp_vm_memory_usage': GaugeMetricFamily(
+                'vcd_vdc_vapp_vm_memory_usage',
+                'Average memory usage of vm in given vApp of vdc',
+                labels=['vm_id', 'vm_name', 'vm_deployed', 'vm_status', 'vm_os_type', 'vapp_id',
+                        'vapp_name', 'vapp_deployed', 'vdc_id', 'vdc_name', 'org_id', 'org_name',
+                        'vdc_is_enabled']
+            ),
+            'vcd_vdc_vapp_vm_disk_read': GaugeMetricFamily(
+                'vcd_vdc_vapp_vm_disk_read',
+                'Average disk read usage in kilobytes of vm in given vApp of vdc',
+                labels=['vm_id', 'vm_name', 'vm_deployed', 'vm_status', 'vm_os_type', 'vapp_id',
+                        'vapp_name', 'vapp_deployed', 'vdc_id', 'vdc_name', 'org_id', 'org_name',
+                        'vdc_is_enabled']
+            ),
+            'vcd_vdc_vapp_vm_disk_write': GaugeMetricFamily(
+                'vcd_vdc_vapp_vm_disk_write',
+                'Average disk write usage in kilobytes of vm in given vApp of vdc',
+                labels=['vm_id', 'vm_name', 'vm_deployed', 'vm_status', 'vm_os_type', 'vapp_id',
+                        'vapp_name', 'vapp_deployed', 'vdc_id', 'vdc_name', 'org_id', 'org_name',
+                        'vdc_is_enabled']
+            ),
             'vcd_vdc_vapp_vm_allocated_memory_mb': GaugeMetricFamily(
                 'vcd_vdc_vapp_vm_allocated_memory_mb',
                 'Memory allocated to VM of given vApp of vdc',
@@ -409,6 +438,12 @@ class VcdCollector:
                                 self.vms.addCallback(onSuccess)
 
                                 try:
+                                    vm_metrics_types = {
+                                        "cpu.usage.average": "vcd_vdc_vapp_vm_vcpu_usage",
+                                        "mem.usage.average": "vcd_vdc_vapp_vm_memory_usage",
+                                        "disk.read.average": "vcd_vdc_vapp_vm_disk_read",
+                                        "disk.write.average": "vcd_vdc_vapp_vm_disk_write",
+                                    }
                                     for vm in self.vms:
                                         vm_labels = [
                                             vm.attrib['id'],
@@ -424,11 +459,20 @@ class VcdCollector:
                                             str(org.get_name()),
                                             str(vdc.resource.IsEnabled)
                                         ]
+                                        vmm = VM(self.vcd_client, resource=vapp.get_vm(vm.attrib['name']))
+                                        vm_metrics = vmm.list_all_current_metrics()
+                                        # print(vm_metrics)
+                                        # next(print(item["metric_value"]) for item in vm_metrics if item["metric_name"] == "cpu.usage.average")
+                                        # next(metrics['vcd_vdc_vapp_vm_vcpu_usage'].add_metric(vm_labels, item["metric_value"]) for item in vm_metrics if item["metric_name"] == "cpu.usage.average")
+                                        for item in vm_metrics:
+                                            if item["metric_name"] in vm_metrics_types.keys():
+                                                metrics[vm_metrics_types[item["metric_name"]]].add_metric(vm_labels, item["metric_value"])
                                         vm_spec = vm.VmSpecSection
                                         metrics['vcd_vdc_vapp_vm_status'].add_metric(vm_labels,
                                                                                      vm.attrib['status'])
 
                                         metrics['vcd_vdc_vapp_vm_vcpu'].add_metric(vm_labels, vm_spec.NumCpus)
+                                        # metrics['vcd_vdc_vapp_vm_vcpu_usage'].add_metric(vm_labels, vm_metrics.NumCpus)
                                         metrics['vcd_vdc_vapp_vm_allocated_memory_mb'].add_metric(
                                             vm_labels,
                                             vm_spec.MemoryResourceMb.Configured)
@@ -515,7 +559,7 @@ class VcdConnection:
         try:
             self.vcd_client = Client(
                 vcd_host,
-                api_version='31.0',
+                api_version='35.0',
                 verify_ssl_certs=ignore_ssl
             )
             self.vcd_client.set_credentials(BasicLoginCredentials(vcd_user, vcd_org, vcd_password))
@@ -555,7 +599,3 @@ def main(argv=None):
     endpoint = endpoints.TCP4ServerEndpoint(reactor, args.port)
     endpoint.listen(factory)
     reactor.run()
-
-
-if __name__ == '__main__':
-    main()
