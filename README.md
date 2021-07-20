@@ -122,14 +122,19 @@ The following the base Prometheus configuration file.
 Organization:
 - Allow Access to All Organization VDCs
 - View Organizations
+
 General:
 - Administrator View
+
 Organization VDC:
 - View (all permissions. Need to investigate)
+
 vApp:
 - View (view all)
+
 VM Monitoring:
 - View (view all. Actually historic data are not gathered)
+
 Custom Entity:
 - View (View all. Probably not required at all)
 
