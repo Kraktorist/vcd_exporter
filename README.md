@@ -83,7 +83,7 @@ The following the base Prometheus configuration file.
         group: 'vcd-gather-metrics'
 ```
 
-# Metrics
+## Metrics
 
 ```
 # HELP vcd_org_is_enabled {"Description": "Enabled status of Organization", "Enabled": 1, "Disabled": 0}
@@ -118,7 +118,23 @@ The following the base Prometheus configuration file.
 # TYPE vcd_vdc_vapp_vm_allocated_memory_mb gauge
 ```
 
-# v.0.0.2
+## Required vCloud Permissions
+Organization:
+- Allow Access to All Organization VDCs
+- View Organizations
+General:
+- Administrator View
+Organization VDC:
+- View (all permissions. Need to investigate)
+vApp:
+- View (view all)
+VM Monitoring:
+- View (view all. Actually historic data are not gathered)
+Custom Entity:
+- View (View all. Probably not required at all)
+
+
+## v.0.0.2
 
 Added vCloud Director metrics 
 ```
